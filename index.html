@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Maze Game</title>
+  <style>
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(5, 85px);
+      grid-gap: 5;
+    }
+
+    .game-button {
+      width: 80px;
+      height: 80px;
+      background-color: red;
+      border: none;
+    }
+
+    body {
+      background-color: #1c1c1c;
+    }
+
+    .glow-button {
+      box-shadow: 0 0 20px #34eba8;
+    }
+
+    .glow-gold-button {
+      box-shadow: 0 0 20px #91840f;
+    }
+
+    .standard-button {
+      /* Standard box styling without glow */
+    }
+
+    .no-border-button {
+      border: none;
+    }
+
+    .next-map-button {
+      font-size: 24px;
+      padding: 8px 16px;
+      background-color: #1c7856;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    .next-map-button:hover {
+      background-color: #145a40;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-board" id="game-board"></div>
+  <script src="game.js"></script>
+</body>
+</html>
