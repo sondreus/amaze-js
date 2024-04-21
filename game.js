@@ -8,6 +8,8 @@ let position = {
 let buttonColors = {};
 let buttonBorders = {};
 let buttonClicks = {};
+let mapCompleted = false;
+let switchMapButton;
 
 // Initialize game state
 for (let i = 1; i <= N; i++) {
@@ -63,10 +65,11 @@ async function createGameBoard(mapData) {
     }
   }
 
-  // Add the "Next Map" and "Clear" buttons
-  const switchMapButton = document.createElement('button');
+  // Add the "Next Map" and "Restart" buttons
+  switchMapButton = document.createElement('button');
   switchMapButton.textContent = '>>';
   switchMapButton.classList.add('next-map-button');
+  switchMapButton.classList.toggle('glow-gold-button', mapCompleted);
   switchMapButton.addEventListener('click', () => {
     currentMapIndex = (currentMapIndex + 1) % maps.length;
     createGameBoard(maps[currentMapIndex]);
@@ -140,6 +143,12 @@ function handleButtonClick(i) {
       position.index = updatePosition(i);
       position.path.push(i);
       buttonClicks[`button${i}`]++;
+
+      // Check if the map is completed
+      if (position.path.length === N - blocked.length) {
+        mapCompleted = true;
+        switchMapButton.classList.add('glow-gold-button');
+      }
     } else if (position.index === i) {
       // Remove the button from the path and update the position.index
       const index = position.path.indexOf(i);
@@ -154,6 +163,12 @@ function handleButtonClick(i) {
       }
       buttonClicks[`button${i}`]++;
       buttonColors[`button${i}`] = incrementer(buttonColors[`button${i}`], i);
+
+      // Check if the map is no longer completed
+      if (position.path.length !== N - blocked.length) {
+        mapCompleted = false;
+        switchMapButton.classList.remove('glow-gold-button');
+      }
     }
 
       // Update borders
@@ -205,6 +220,7 @@ function resetGameState() {
   buttonColors = {};
   buttonBorders = {};
   buttonClicks = {};
+  mapCompleted = false;
 
   // Initialize game state
   for (let i = 1; i <= N; i++) {
