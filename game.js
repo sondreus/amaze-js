@@ -33,10 +33,8 @@ async function createGameBoard(mapData) {
   // Clear the existing game board
   gameBoard.innerHTML = '';
   
-  // Reset the blocked array
-  blocked = [];
-  position.path = [];
-  position.index = null;
+  // Reset the game state
+  resetGameState();
 
   for (let i = 1; i <= N; i++) {
     if (mapData[i - 1] === "0") {
@@ -65,7 +63,7 @@ async function createGameBoard(mapData) {
     }
   }
 
-  // Add the "Next Map" button
+  // Add the "Next Map" and "Clear" buttons
   const switchMapButton = document.createElement('button');
   switchMapButton.textContent = '>>';
   switchMapButton.classList.add('next-map-button');
@@ -74,6 +72,15 @@ async function createGameBoard(mapData) {
     createGameBoard(maps[currentMapIndex]);
   });
   gameBoard.appendChild(switchMapButton);
+
+  const restartButton = document.createElement('button');
+  restartButton.innerHTML = '&#8635;'; // Restart symbol
+  restartButton.classList.add('next-map-button');
+  restartButton.addEventListener('click', () => {
+    resetGameState();
+    createGameBoard(maps[currentMapIndex]);
+  });
+  gameBoard.appendChild(restartButton);
 }
 
 async function loadGame() {
@@ -188,4 +195,23 @@ function logButtonClickVector() {
   for (let i = 1; i <= N; i++) {
     clickVector.push(buttonClicks[`button${i}`]);
   }
+}
+
+function resetGameState() {
+  position = {
+    index: null,
+    path: []
+  };
+  buttonColors = {};
+  buttonBorders = {};
+  buttonClicks = {};
+
+  // Initialize game state
+  for (let i = 1; i <= N; i++) {
+    buttonBorders[`button${i}`] = 2;
+    buttonColors[`button${i}`] = 1;
+    buttonClicks[`button${i}`] = 0;
+  }
+
+  blocked = [];
 }
