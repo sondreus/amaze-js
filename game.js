@@ -61,29 +61,33 @@ async function createGameBoard(mapData) {
   if (position.index == null) {
     for (let j = 1; j <= N; j++) {
       const buttonElement = document.getElementById(`button${j}`);
+      if (!blocked.includes(j)){
       buttonElement.classList.add('glow-button');
+      }
     }
   }
 
   // Add the "Next Map" and "Restart" buttons
+  
+  const restartButton = document.createElement('button');
+  restartButton.innerHTML = '&#8635;'; // Restart symbol
+  restartButton.classList.add('restart-button');
+  restartButton.addEventListener('click', () => {
+    resetGameState();
+    createGameBoard(maps[currentMapIndex]);
+  });
+  gameBoard.appendChild(restartButton);
+  
   switchMapButton = document.createElement('button');
   switchMapButton.textContent = '>>';
   switchMapButton.classList.add('next-map-button');
-  switchMapButton.classList.toggle('glow-gold-button', mapCompleted);
+  switchMapButton.classList.toggle('glow-big-gold-button', mapCompleted);
   switchMapButton.addEventListener('click', () => {
     currentMapIndex = (currentMapIndex + 1) % maps.length;
     createGameBoard(maps[currentMapIndex]);
   });
   gameBoard.appendChild(switchMapButton);
 
-  const restartButton = document.createElement('button');
-  restartButton.innerHTML = '&#8635;'; // Restart symbol
-  restartButton.classList.add('next-map-button');
-  restartButton.addEventListener('click', () => {
-    resetGameState();
-    createGameBoard(maps[currentMapIndex]);
-  });
-  gameBoard.appendChild(restartButton);
 }
 
 async function loadGame() {
@@ -147,7 +151,7 @@ function handleButtonClick(i) {
       // Check if the map is completed
       if (position.path.length === N - blocked.length) {
         mapCompleted = true;
-        switchMapButton.classList.add('glow-gold-button');
+        switchMapButton.classList.add('glow-big-gold-button');
       }
     } else if (position.index === i) {
       // Remove the button from the path and update the position.index
@@ -167,7 +171,7 @@ function handleButtonClick(i) {
       // Check if the map is no longer completed
       if (position.path.length !== N - blocked.length) {
         mapCompleted = false;
-        switchMapButton.classList.remove('glow-gold-button');
+        switchMapButton.classList.remove('glow-big-gold-button');
       }
     }
 
@@ -175,7 +179,8 @@ function handleButtonClick(i) {
     for (let j = 1; j <= N; j++) {
       const buttonElement = document.getElementById(`button${j}`);
       if (
-          position.index === null ||
+          (position.index === null &&
+          !blocked.includes(j)) ||
           (getNeighbors(position.index).includes(j) &&
           !blocked.includes(j) &&
           !position.path.includes(j))
