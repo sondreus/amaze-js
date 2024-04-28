@@ -305,6 +305,9 @@ function shareMap() {
     navigator.clipboard.writeText(shareLink);
     // Change the button icon or color
     changeShareButtonState();
+    setTimeout(() => {
+      showCopiedMessage();
+    }, 100);
   }
 }
 
@@ -330,5 +333,20 @@ function changeShareButtonState() {
       </svg>
     `;
     shareButton.classList.remove('text-green-500');
+  }, 2000);
+}
+
+function showCopiedMessage() {
+  const copiedMessage = document.createElement('div');
+  copiedMessage.textContent = 'Copied to clipboard';
+  copiedMessage.classList.add('copied-message');
+
+  document.body.appendChild(copiedMessage);
+
+  setTimeout(() => {
+    copiedMessage.classList.add('hide');
+    setTimeout(() => {
+      document.body.removeChild(copiedMessage);
+    }, 300);
   }, 2000);
 }
