@@ -41,13 +41,23 @@
     }
     .glow-gold-button {
       box-shadow: 0 0 20px #91840f;
+
     }
     .next-map-button.glow-big-gold-button {
       background-color: gold;
       color: black;
       font-weight: bold;
       animation: glow 1.25s ease-in-out infinite alternate;
+      transform: scale(1.2);
+      transition: transform 0.3s ease;
     }
+
+    .share-button.gold-button {
+      background-color: gold;
+      transform: scale(1.2);
+      transition: transform 0.3s ease;
+    }
+
 
     @keyframes glow {
       from {
@@ -76,7 +86,8 @@
     }
 
     .next-map-button,
-    .restart-button {
+    .restart-button,
+    .share-button {
       width: calc(0.8*100%);
       aspect-ratio: 1/1;
       font-size: 24px;
@@ -89,6 +100,7 @@
       margin-top: 16px;
       display: block;
       margin: 16px auto 0;
+      fill: white;
     }
 
     .next-map-button {
@@ -96,13 +108,20 @@
       justify-self: end; 
     }
 
+    .share-button {
+      grid-column: 4;
+      justify-self: start;
+    }
+
+    
     .restart-button {
       grid-column: 1;
       justify-self: start;
     }
 
     .restart-button:hover,
-    .next-map-button:hover {
+    .next-map-button:hover,
+    .share-button:hover {
       filter: brightness(0.8); /* Darken the button by 20% on hover */
     }
   </style>

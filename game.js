@@ -19,11 +19,11 @@ for (let i = 1; i <= N; i++) {
 }
 
 // Define the map data as a string
-//mapData = "001100110011000111111"
 let blocked = [];
 let gameBoard;
 let currentMapIndex = 0;
 let maps;
+let currentMap;
 
 async function loadMapData() {
   const response = await fetch('map_data.json');
@@ -46,7 +46,6 @@ async function createGameBoard(mapData) {
       buttonColors[`button${i}`] = 1;
     }
   }
-  console.log(blocked)
 
   // Create the game board
   for (let i = 1; i <= N; i++) {
@@ -67,7 +66,7 @@ async function createGameBoard(mapData) {
     }
   }
 
-  // Add the "Next Map" and "Restart" buttons
+  // Add the "Restart", "Share" and "Next Map" buttons
   
   const restartButton = document.createElement('button');
   restartButton.innerHTML = '&#8635;'; // Restart symbol
@@ -78,6 +77,19 @@ async function createGameBoard(mapData) {
   });
   gameBoard.appendChild(restartButton);
   
+  // Add the "Share" button
+  shareButton = document.createElement('button');
+  shareButton.innerHTML = `
+  <svg id="Footer-module_shareIcon__wOwOt" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" class="game-icon" data-testid="icon-share">
+    <path fill="var(--white)" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92zM18 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM6 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 7.02c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z">
+    </path>
+  </svg>
+`; // Restart symbol; // Share symbol
+  shareButton.classList.add('share-button');
+  shareButton.classList.toggle('gold-button', mapCompleted);
+  shareButton.addEventListener('click', shareMap);
+  gameBoard.appendChild(shareButton);
+
   switchMapButton = document.createElement('button');
   switchMapButton.textContent = '>>';
   switchMapButton.classList.add('next-map-button');
@@ -88,6 +100,7 @@ async function createGameBoard(mapData) {
   });
   gameBoard.appendChild(switchMapButton);
 
+  currentMap = mapData;
 }
 
 async function loadGame() {
@@ -152,7 +165,9 @@ function handleButtonClick(i) {
       if (position.path.length === N - blocked.length) {
         mapCompleted = true;
         switchMapButton.classList.add('glow-big-gold-button');
+        shareButton.classList.add('gold-button');
       }
+
     } else if (position.index === i) {
       // Remove the button from the path and update the position.index
       const index = position.path.indexOf(i);
@@ -172,6 +187,7 @@ function handleButtonClick(i) {
       if (position.path.length !== N - blocked.length) {
         mapCompleted = false;
         switchMapButton.classList.remove('glow-big-gold-button');
+        shareButton.classList.remove('gold-button');
       }
     }
 
@@ -235,4 +251,58 @@ function resetGameState() {
   }
 
   blocked = [];
+}
+
+
+function convertToEmojis(mapData, maxPerLine = 5) {
+  const emojiMap = {
+    '0': '&#129704;',  // "🪨"
+    '1': '&#129001;',  // "🟩"
+    '2': '&#9989;'     // "✅"
+  };
+
+  let emojiString = '';
+  let lineCount = 0;
+
+  for (let i = 0; i < mapData.length; i++) {
+    const char = mapData[i];
+    emojiString += emojiMap[char] || char;
+
+    if ((i + 1) % maxPerLine === 0) {
+      emojiString += '\n';
+      lineCount++;
+    }
+  }
+
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric'
+  }).replace(',', ',');
+
+  const result = `${currentDate}\n${emojiString.replace(/&#129704;/g, '🪨').replace(/&#129001;/g, '🟩').replace(/&#9989;/g, '✅')}\nsondreus.github.io/amaze-js`;
+
+  return result;
+}
+
+//console.log(currentMap);
+//console.log(convertToEmojis("1100011110110100101001110"));
+
+function shareMap() {
+  // Generate a shareable link or image based on the current map
+  const currentMap = maps[currentMapIndex];
+  const shareLink = convertToEmojis(currentMap)
+
+  // Open a share dialog or copy the link to the clipboard
+  // You can use the Web Share API or a custom implementation
+  if (false) {
+    navigator.share({
+      title: 'Check out this map!',
+      url: shareLink,
+    });
+  } else {
+    // Fallback to copying the link to the clipboard
+    navigator.clipboard.writeText(shareLink);
+    alert('Copied to clipboard!');
+  }
 }
