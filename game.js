@@ -350,3 +350,24 @@ function showCopiedMessage() {
     }, 300);
   }, 2000);
 }
+
+// Get the modal and the close button
+const modal = document.getElementById("game-explanation-modal");
+const closeButton = document.getElementById("close-game-explanation");
+
+// Show the modal when the page loads
+window.onload = function() {
+  modal.style.display = "block";
+};
+
+// Hide the modal when the close button is clicked
+closeButton.onclick = function() {
+  modal.style.display = "none";
+};
+
+// Hide the modal when the user clicks outside the modal
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+};
