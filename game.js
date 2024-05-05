@@ -367,7 +367,7 @@ function changeShareButtonState() {
     shareButton.classList.remove('text-green-500');
   }, 2000);
 }
-
+/*
 function showCopiedMessage() {
   const copiedMessage = document.createElement('div');
   copiedMessage.textContent = 'Copied to clipboard';
@@ -403,3 +403,5 @@ window.onclick = function(event) {
     modal.style.display = "none";
   }
 };
+
+*/
