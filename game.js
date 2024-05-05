@@ -127,8 +127,16 @@ function updateButtonColor(j, position) {
   const currentPosition = getPositionInPath(j, position);
   const fadePercentage = 1 - (Math.log(currentPosition + 1)) / 5;
 
-  buttonElement.style.transition = 'background-color 1s ease';
-  buttonElement.style.backgroundColor = valueToColor(buttonColors[`button${j}`], fadePercentage);
+  // Check if the button is not in the first position of the path
+  if (currentPosition > 1) {
+    const fadePercentage = 1 - (Math.log(currentPosition) / 5);
+    buttonElement.style.transition = 'background-color 0.5s ease';
+    buttonElement.style.backgroundColor = valueToColor(buttonColors[`button${j}`], fadePercentage);
+  } else {
+    // If the button is in the first position, set the color without any fade effect
+    buttonElement.style.transition = 'none';
+    buttonElement.style.backgroundColor = valueToColor(buttonColors[`button${j}`], 1);
+  }
 }
 
 function getPositionInPath(i, path) {
