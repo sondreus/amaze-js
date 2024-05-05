@@ -115,11 +115,29 @@ await createGameBoard(maps[currentMapIndex]);
 loadGame();
 
 // Helper functions
-function valueToColor(value) {
+function valueToColor(value, fade) {
   if (value === 1) return 'black';
-  if (value === 2) return '#1c7856';
+  if (value === 2) return `rgba(28, 120, 86, ${fade})`; // '#1c7856';
   if (value === 0) return 'gray';
   if (value === 5) return 'white';
+}
+
+function updateButtonColor(j, position) {
+  const buttonElement = document.getElementById(`button${j}`);
+  const currentPosition = getPositionInPath(j, position);
+  const fadePercentage = 1 - (Math.log(currentPosition + 1)) / 5;
+
+  buttonElement.style.transition = 'background-color 1s ease';
+  buttonElement.style.backgroundColor = valueToColor(buttonColors[`button${j}`], fadePercentage);
+}
+
+function getPositionInPath(i, path) {
+  const index = path.indexOf(i);
+  if (index !== -1) {
+    return path.length - index; // Return the position (1-based index)
+  } else {
+    return 0; // Return 0 if the value is not in the path
+  }
 }
 
 function incrementer(value, position) {
@@ -213,16 +231,22 @@ function handleButtonClick(i) {
         } else {
           buttonElement.classList.remove('glow-gold-button');
         }
+        // Update colors
+       // document.getElementById(`button${j}`).style.backgroundColor = valueToColor(buttonColors[`button${j}`], 1 - (Math.log(getPositionInPath(j, position.path) + 1)) / 5);
+       updateButtonColor(j, position.path)
       }
     }
 
-  document.getElementById(`button${i}`).style.backgroundColor = valueToColor(buttonColors[`button${i}`]);
+  console.log(1 - Math.log(position.path.length + 1) / 10)
+  console.log(getPositionInPath(i, position.path))
+
 
   // Log the button click vector
   logButtonClickVector();
 
   // debug
   console.log(blocked)
+  console.log(position.path)
 
 }
 
