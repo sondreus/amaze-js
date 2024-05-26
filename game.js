@@ -21,7 +21,10 @@ for (let i = 1; i <= N; i++) {
 // Define the map data as a string
 let blocked = [];
 let gameBoard;
-let currentMapIndex = 0;
+const currentDate = new Date();
+const referenceDate = new Date(2024, 4, 27);
+const daysDiff = Math.floor((currentDate - referenceDate) / (1000 * 60 * 60 * 24));
+let currentMapIndex = daysDiff + 10;
 let maps;
 let currentMap;
 
