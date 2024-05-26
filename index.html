@@ -81,6 +81,15 @@
       transition: transform 0.3s ease;
     }
 
+    .glow-golden-button {
+      background-color: gold;
+      color: black;
+      font-weight: bold;
+      animation: glow 1.25s ease-in-out infinite alternate;
+      transform: scale(1.2);
+      transition: transform 0.3s ease;
+    }
+
     .share-button.gold-button {
       background-color: gold;
       transform: scale(1.2);
@@ -197,23 +206,6 @@
       width: calc(0.8*100%);
       text-align: center;
     }
-
-    .close-button {
-      color: #1c7856;;
-      background-color: #1c1c1c;
-      float: right;
-      font-size: 40px;
-      font-weight: bold;
-      cursor: pointer;
-      aspect-ratio: 1/1;
-    }
-
-    .close-button:hover,
-    .close-button:focus {
-      color: gold;
-      text-decoration: none;
-      cursor: pointer;
-    }
   
     .grid-container {
       display: grid;
@@ -224,9 +216,88 @@
       text-align: center;
       color: white;
     }
+    
+    .tutorial-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background-color: #1c1c1c;
+      display: flex;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .tutorial-content {
+      background-color: #1c1c1c;
+      border-radius: 4px;
+      text-align: center;
+      color: white;
+      max-width: 800px;
+      width: 60%;
+      aspect-ratio: 1/1.2; /* Same aspect ratio as the game board */
+      margin: 0 auto;
+    }
+
+    .tutorial-content h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    
+
+    .tutorial-content p {
+      width: 60%;
+      max-width: 50%; /* Set the maximum width to 60% */
+      margin: 5rem auto 0; /* Add margin-top of 2rem (32px) */
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .close-button-container {
+      display: flex;
+      justify-content: center;
+    }
+
+    .close-button {
+      background-color: #1c7856;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 4px;
+      width: 15%;
+      aspect-ratio: 1/1;
+    }
+
+    .close-button:hover {
+      filter: brightness(0.8);
+    }
+    body {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+    }
+
   </style>
 </head>
 <body>
+  <div class="tutorial-screen" id="tutorialScreen">
+    <div class="tutorial-content">
+      <br>
+      <br>
+      <br>
+      <p> </p>
+      <img src="logo.png" alt="Logo" class="tutorial-logo" style="width: 50%">
+      <br>
+      <p> </p>
+      <p>Make a path which visits all black squares exactly once. Start anywhere.</p>
+      <br>
+      <div class="close-button-container">
+        <button class="close-button" id="closeTutorial">></button>
+      </div>
+    </div>
+  </div>
   <div class="game-board" id="game-board"></div>
   <script src="game.js"></script>
 </body>

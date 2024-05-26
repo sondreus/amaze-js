@@ -367,6 +367,34 @@ function changeShareButtonState() {
     shareButton.classList.remove('text-green-500');
   }, 2000);
 }
+
+// Get the close tutorial button element
+const closeTutorialButton = document.getElementById('closeTutorial');
+
+// Set a timeout to apply the glow effect after 5 seconds
+setTimeout(function() {
+  closeTutorialButton.style.backgroundColor = 'gold';
+  closeTutorialButton.style.color = 'black';
+  closeTutorialButton.style.fontWeight = 'bold';
+  closeTutorialButton.style.animation = 'glow 1.25s ease-in-out infinite alternate';
+  closeTutorialButton.style.transform = 'scale(1.2)';
+  closeTutorialButton.style.transition = 'transform 0.3s ease';
+}, 20000); // 5000 milliseconds = 5 seconds
+
+// Get the tutorial screen and close button elements
+const tutorialScreen = document.getElementById('tutorialScreen');
+const closeButton = document.getElementById('closeTutorial');
+
+// Show the tutorial screen initially
+window.onload = function() {
+  tutorialScreen.style.display = 'flex';
+};
+
+// Hide the tutorial screen when the close button is clicked
+closeButton.addEventListener('click', function() {
+  tutorialScreen.style.display = 'none';
+  // Start your game logic here
+});
 /*
 function showCopiedMessage() {
   const copiedMessage = document.createElement('div');
