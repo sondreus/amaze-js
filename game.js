@@ -1,4 +1,4 @@
-const N = 25;
+const N = 49;
 
 // Game state
 let position = {
@@ -70,7 +70,6 @@ async function createGameBoard(mapData) {
   }
 
   // Add the "Restart", "Share" and "Next Map" buttons
-  
   const restartButton = document.createElement('button');
   restartButton.innerHTML = '&#8635;'; // Restart symbol
   restartButton.classList.add('restart-button');
@@ -79,7 +78,7 @@ async function createGameBoard(mapData) {
     createGameBoard(maps[currentMapIndex]);
   });
   gameBoard.appendChild(restartButton);
-  
+
   // Add the "Share" button
   shareButton = document.createElement('button');
   shareButton.innerHTML = `
@@ -102,6 +101,11 @@ async function createGameBoard(mapData) {
     createGameBoard(maps[currentMapIndex]);
   });
   gameBoard.appendChild(switchMapButton);
+
+  // Update the CSS for button positioning
+  document.querySelector('.next-map-button').style.gridColumn = '7';
+  document.querySelector('.share-button').style.gridColumn = '6';
+  document.querySelector('.restart-button').style.gridColumn = '1';
 
   currentMap = mapData;
 }
@@ -164,13 +168,13 @@ function incrementer(value, position) {
 }
 
 function getNeighbors(index) {
-  const col = Math.ceil(index / 5);
-  const row = index % 5 === 0 ? 5 : index % 5;
+  const col = Math.ceil(index / 7);
+  const row = index % 7 === 0 ? 7 : index % 7;
   const neighbors = [
-    (col > 1) ? (col - 2) * 5 + row : 0,
-    (col < 5) ? (col) * 5 + row : 0,
-    (row > 1) ? (col - 1) * 5 + row - 1 : 0,
-    (row < 5) ? (col - 1) * 5 + row + 1 : 0
+    (col > 1) ? (col - 2) * 7 + row : 0,
+    (col < 7) ? (col) * 7 + row : 0,
+    (row > 1) ? (col - 1) * 7 + row - 1 : 0,
+    (row < 7) ? (col - 1) * 7 + row + 1 : 0
   ];
   return neighbors.filter(n => n > 0 && n <= N && n !== index);
 }
@@ -289,7 +293,7 @@ function resetGameState() {
 }
 
 
-function convertToEmojis(mapData, maxPerLine = 5) {
+function convertToEmojis(mapData, maxPerLine = 7) {
   const emojiMap = {
     '0': '&#129704;',  // "🪨"
     '1': '&#129001;',  // "🟩"
