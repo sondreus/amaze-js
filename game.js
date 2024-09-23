@@ -24,7 +24,7 @@ let gameBoard;
 const currentDate = new Date();
 const referenceDate = new Date(2024, 4, 27);
 const daysDiff = Math.floor((currentDate - referenceDate) / (1000 * 60 * 60 * 24));
-let currentMapIndex = daysDiff + 10;
+let currentMapIndex = 1 // daysDiff + 10;
 let maps;
 let currentMap;
 
@@ -37,26 +37,30 @@ async function loadMapData() {
 async function createGameBoard(mapData) {
   // Clear the existing game board
   gameBoard.innerHTML = '';
-  
-  // Reset the game state
   resetGameState();
 
-  for (let i = 1; i <= N; i++) {
-    if (mapData[i - 1] === "0") {
-      buttonColors[`button${i}`] = 0;
-      blocked.push(i);
-    } else {
-      buttonColors[`button${i}`] = 1;
-    }
-  }
-
-  // Create the game board
   for (let i = 1; i <= N; i++) {
     const button = document.createElement('button');
     button.classList.add('game-button', 'no-border-button');
     button.style.backgroundColor = valueToColor(buttonColors[`button${i}`]);
     button.id = `button${i}`;
     button.addEventListener('click', () => handleButtonClick(i));
+
+    if (mapData[i - 1] === "0") {
+      buttonColors[`button${i}`] = 0;
+      blocked.push(i);
+      button.style.backgroundColor = valueToColor(0); // Set blocked color immediately
+    } else if (mapData[i - 1] === "2") {
+      button.dataset.maxVisits = 2;
+      const recycleIcon = document.createElement('span');
+      recycleIcon.innerHTML = '🔄'; // Unicode recycle symbol
+      recycleIcon.classList.add('recycle-icon');
+      button.appendChild(recycleIcon);
+    } else {
+      buttonColors[`button${i}`] = 1;
+      button.dataset.maxVisits = 1;
+    }
+
     gameBoard.appendChild(button);
   }
 
@@ -122,27 +126,34 @@ await createGameBoard(maps[currentMapIndex]);
 loadGame();
 
 // Helper functions
-function valueToColor(value, fade) {
-  if (value === 1) return 'black';
-  if (value === 2) return `rgba(28, 120, 86, ${fade})`; // '#1c7856';
-  if (value === 0) return 'gray';
-  if (value === 5) return 'white';
+function valueToColor(value, fade = 1) {
+  if (value === 0) return 'gray'; // Blocked square color
+  if (value === 1) return 'black'; // Default square color
+  if (value === 2) return `rgba(28, 120, 86, ${fade})`; // Visited square color
+  if (value === 5) return 'white'; // Unused in this context, but kept for completeness
 }
 
-function updateButtonColor(j, position) {
+function updateButtonColor(j, path) {
   const buttonElement = document.getElementById(`button${j}`);
-  const currentPosition = getPositionInPath(j, position);
-  const fadePercentage = 1 - (Math.log(currentPosition + 1)) / 5;
+  const maxVisits = parseInt(buttonElement.dataset.maxVisits) || 1;
+  const isInPath = path.includes(j);
 
-  // Check if the button is not in the first position of the path
-  if (currentPosition > 1) {
-    const fadePercentage = 1 - (Math.log(currentPosition) / 5);
-    buttonElement.style.transition = 'background-color 1s ease';
-    buttonElement.style.backgroundColor = valueToColor(buttonColors[`button${j}`], fadePercentage);
+  if (isInPath) {
+      // If the square is in the path, show it as visited regardless of single or double visit
+      const fadePercentage = 1 - (Math.log(getPositionInPath(j, path) + 1)) / 5;
+      buttonElement.style.transition = 'background-color 0.25s ease';
+      buttonElement.style.backgroundColor = valueToColor(2, fadePercentage); // Use visited color (2)
   } else {
-    // If the button is in the first position, set the color without any fade effect
-    buttonElement.style.transition = 'background-color 0.25s ease';
-    buttonElement.style.backgroundColor = valueToColor(buttonColors[`button${j}`], 1);
+      // If not in path, show original color
+      buttonElement.style.backgroundColor = valueToColor(buttonColors[`button${j}`], 1);
+  }
+
+  // Show/hide recycle icon for double-visit squares
+  if (maxVisits === 2) {
+      const recycleIcon = buttonElement.querySelector('.recycle-icon');
+      if (recycleIcon) {
+          recycleIcon.style.display = isInPath ? 'none' : 'block';
+      }
   }
 }
 
@@ -185,84 +196,104 @@ function updatePosition(index) {
 
 function handleButtonClick(i) {
   if (!blocked.includes(i)) {
-    if (
-      position.index === null ||
-      (getNeighbors(position.index).includes(i) && !position.path.includes(i))
-    ) {
-      buttonColors[`button${i}`] = incrementer(buttonColors[`button${i}`], i);
-      position.index = updatePosition(i);
-      position.path.push(i);
-      buttonClicks[`button${i}`]++;
+    const buttonElement = document.getElementById(`button${i}`);
+    const maxVisits = parseInt(buttonElement.dataset.maxVisits) || 1;
+    const currentVisits = position.path.filter(pos => pos === i).length;
 
-      // Check if the map is completed
-      if (position.path.length === N - blocked.length) {
-        mapCompleted = true;
-        switchMapButton.classList.add('glow-big-gold-button');
-        shareButton.classList.add('gold-button');
+    if (position.index === null || getNeighbors(position.index).includes(i)) {
+      if (currentVisits < maxVisits) {
+        buttonColors[`button${i}`] = incrementer(buttonColors[`button${i}`], i);
+        position.index = updatePosition(i);
+        position.path.push(i);
+        buttonClicks[`button${i}`]++;
+
+        // Hide recycle icon if max visits reached
+        if (maxVisits === 2 && currentVisits + 1 === maxVisits) {
+          const recycleIcon = buttonElement.querySelector('.recycle-icon');
+          if (recycleIcon) {
+            recycleIcon.style.display = 'none';
+          }
+        }
+
+        // Check if the map is completed
+        const uniqueVisits = new Set(position.path).size;
+        const totalSquares = N - blocked.length;
+        const doubleVisitSquares = currentMap.split('').filter(char => char === '2').length;
+        if (uniqueVisits === totalSquares && position.path.length === totalSquares + doubleVisitSquares) {
+          mapCompleted = true;
+          switchMapButton.classList.add('glow-big-gold-button');
+          shareButton.classList.add('gold-button');
+        }
       }
-
     } else if (position.index === i) {
       // Remove the button from the path and update the position.index
-      const index = position.path.indexOf(i);
+      const index = position.path.lastIndexOf(i);
       if (index !== -1) {
-        position.path.splice(index, 1);
-      }
-      // Update position.index_l1 based on the new position.path
-      if (position.path.length > 0) {
-        position.index = position.path[position.path.length - 1];
-      } else {
-        position.index = null;
-      }
-      buttonClicks[`button${i}`]++;
-      buttonColors[`button${i}`] = incrementer(buttonColors[`button${i}`], i);
+        position.path.splice(index);
+        if (position.path.length > 0) {
+          position.index = position.path[position.path.length - 1];
+        } else {
+          position.index = null;
+        }
+        buttonClicks[`button${i}`]++;
+        buttonColors[`button${i}`] = decrementColor(buttonColors[`button${i}`], i);
 
-      // Check if the map is no longer completed
-      if (position.path.length !== N - blocked.length) {
+        // Show recycle icon if it's a double-visit square
+        if (maxVisits === 2) {
+          const recycleIcon = buttonElement.querySelector('.recycle-icon');
+          if (recycleIcon) {
+            recycleIcon.style.display = 'block';
+          }
+        }
+
+        // Check if the map is no longer completed
         mapCompleted = false;
         switchMapButton.classList.remove('glow-big-gold-button');
         shareButton.classList.remove('gold-button');
       }
     }
 
-      // Update borders
+    // Update borders and colors
     for (let j = 1; j <= N; j++) {
       const buttonElement = document.getElementById(`button${j}`);
-      if (
-          (position.index === null &&
-          !blocked.includes(j)) ||
-          (getNeighbors(position.index).includes(j) &&
-          !blocked.includes(j) &&
-          !position.path.includes(j))
-        ) {
-          buttonElement.classList.add('glow-button');
-        } else {
-          buttonElement.classList.remove('glow-button');
-        }
+      const maxVisits = parseInt(buttonElement.dataset.maxVisits) || 1;
+      const currentVisits = position.path.filter(pos => pos === j).length;
 
-        // Set index glow
-        if (position.index !== null && j === position.index) {
-          buttonElement.classList.remove('glow-button');
-          buttonElement.classList.add('glow-gold-button');
-        } else {
-          buttonElement.classList.remove('glow-gold-button');
-        }
-        // Update colors
-       // document.getElementById(`button${j}`).style.backgroundColor = valueToColor(buttonColors[`button${j}`], 1 - (Math.log(getPositionInPath(j, position.path) + 1)) / 5);
-       updateButtonColor(j, position.path)
+      if (
+        (position.index === null && !blocked.includes(j)) ||
+        (getNeighbors(position.index).includes(j) && !blocked.includes(j) && currentVisits < maxVisits)
+      ) {
+        buttonElement.classList.add('glow-button');
+      } else {
+        buttonElement.classList.remove('glow-button');
       }
+
+      if (position.index !== null && j === position.index) {
+        buttonElement.classList.remove('glow-button');
+        buttonElement.classList.add('glow-gold-button');
+      } else {
+        buttonElement.classList.remove('glow-gold-button');
+      }
+
+      updateButtonColor(j, position.path);
     }
 
-  console.log(1 - Math.log(position.path.length + 1) / 10)
-  console.log(getPositionInPath(i, position.path))
+    console.log(1 - Math.log(position.path.length + 1) / 10);
+    console.log(getPositionInPath(i, position.path));
 
+    // Log the button click vector
+    logButtonClickVector();
 
-  // Log the button click vector
-  logButtonClickVector();
+    // debug
+    console.log(blocked);
+    console.log(position.path);
+  }
+}
 
-  // debug
-  console.log(blocked)
-  console.log(position.path)
-
+function decrementColor(value, position) {
+  if (value === 2) return 2; // Keep it at 2 if it's a double-visit square
+  if (value === 1) return 1; // Stays at 1 if it's a single-visit square
+  return value; // For any other case (shouldn't happen)
 }
 
 function logButtonClickVector() {
@@ -295,9 +326,9 @@ function resetGameState() {
 
 function convertToEmojis(mapData, maxPerLine = 7) {
   const emojiMap = {
-    '0': '&#129704;',  // "🪨"
-    '1': '&#129001;',  // "🟩"
-    '2': '&#9989;'     // "✅"
+    '0': '🪨',
+    '1': '🟩',
+    '2': '🔄'
   };
 
   let emojiString = '';
