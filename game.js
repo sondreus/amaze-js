@@ -280,6 +280,12 @@ function handleButtonClick(i) {
 
     console.log(1 - Math.log(position.path.length + 1) / 10);
     console.log(getPositionInPath(i, position.path));
+    console.log(position.path)
+
+    console.log(`Button ${41}:
+      Element: %o
+      Max Visits: ${parseInt(document.getElementById(`button${41}`).dataset.maxVisits) || 1}
+      In Path: ${position.path.includes(41)}`);
 
     // Log the button click vector
     logButtonClickVector();
@@ -291,8 +297,8 @@ function handleButtonClick(i) {
 }
 
 function decrementColor(value, position) {
-  if (value === 2) return 2; // Keep it at 2 if it's a double-visit square
-  if (value === 1) return 1; // Stays at 1 if it's a single-visit square
+  if (value === 2) return 1; // 
+  if (value === 1) return 1; //
   return value; // For any other case (shouldn't happen)
 }
 
