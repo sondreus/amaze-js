@@ -102,7 +102,6 @@ function drawPath() {
   });
 }
 
-
 // Game state
 let position = {
   index: null,
@@ -241,6 +240,9 @@ function updateButtonColor(j, path) {
   const buttonElement = document.getElementById(`button${j}`);
   const maxVisits = parseInt(buttonElement.dataset.maxVisits) || 1;
   const isInPath = path.includes(j);
+  const currentVisits = path.filter(pos => pos === j).length;
+
+  // console.log(`Button ${j}: Element: %o, Max Visits: ${maxVisits}, times in path: ${currentVisits}`, buttonElement);
 
   if (isInPath) {
       // If the square is in the path, show it as visited regardless of single or double visit
@@ -250,6 +252,11 @@ function updateButtonColor(j, path) {
   } else {
       // If not in path, show original color
       buttonElement.style.backgroundColor = valueToColor(buttonColors[`button${j}`], 1);
+  }
+
+  if (currentVisits < maxVisits && maxVisits == 2){
+      // If not in path, show original color
+      buttonElement.style.backgroundColor = valueToColor(1, 0);
   }
 
   // Show/hide recycle icon for double-visit squares
@@ -304,21 +311,45 @@ function handleButtonClick(i) {
     const maxVisits = parseInt(buttonElement.dataset.maxVisits) || 1;
     const currentVisits = position.path.filter(pos => pos === i).length;
 
+    // Log the button state
+        console.log(`Button ${i}: Element: %o, Max Visits: ${maxVisits}, Current Visits: ${currentVisits}`, buttonElement);
+
     if (position.index === null || getNeighbors(position.index).includes(i)) {
+      
       if (currentVisits < maxVisits) {
         buttonColors[`button${i}`] = incrementer(buttonColors[`button${i}`], i);
         position.index = updatePosition(i);
         position.path.push(i);
         buttonClicks[`button${i}`]++;
 
-        // Hide recycle icon if max visits reached
-        if (maxVisits === 2 && currentVisits + 1 === maxVisits) {
+
+        // Logic to manage the recycling icon and checkmark
+        if (maxVisits === 2) {
+          const checkmarkIcon = buttonElement.querySelector('.checkmark-icon');
           const recycleIcon = buttonElement.querySelector('.recycle-icon');
-          if (recycleIcon) {
-            recycleIcon.style.display = 'none';
+
+          // Hide recycle icon and show checkmark if visited once
+          if (currentVisits + 1 === 1) {
+              if (recycleIcon) {
+                  recycleIcon.style.display = 'none'; // Hide recycling icon
+              }
+              if (!checkmarkIcon) {
+                const checkmarkIcon = document.createElement('span');
+                checkmarkIcon.innerHTML = '✔️'; // Unicode checkmark symbol
+                checkmarkIcon.classList.add('checkmark-icon'); // Add a class for styling if needed
+                buttonElement.appendChild(checkmarkIcon); // Append checkmark icon to the button
+            } else {
+              checkmarkIcon.style.display = 'block';
+            }
+
+          } else if (currentVisits > 0) {
+              // Hide checkmark icon
+              if (checkmarkIcon) {
+                checkmarkIcon.style.display = 'none'; // Hide checkmark for other cases
+            }
           }
         }
-
+      
         // Check if the map is completed
         const uniqueVisits = new Set(position.path).size;
         const totalSquares = N - blocked.length;
@@ -329,6 +360,8 @@ function handleButtonClick(i) {
           shareButton.classList.add('gold-button');
         }
       }
+      
+
     } else if (position.index === i) {
       // Remove the button from the path and update the position.index
       const index = position.path.lastIndexOf(i);
@@ -342,13 +375,31 @@ function handleButtonClick(i) {
         buttonClicks[`button${i}`]++;
         buttonColors[`button${i}`] = decrementColor(buttonColors[`button${i}`], i);
 
-        // Show recycle icon if it's a double-visit square
+        // Logic to manage the recycling icon and checkmark
         if (maxVisits === 2) {
+          
+          const checkmarkIcon = buttonElement.querySelector('.checkmark-icon');
           const recycleIcon = buttonElement.querySelector('.recycle-icon');
-          if (recycleIcon) {
-            recycleIcon.style.display = 'block';
+
+          // Hide recycle icon and show checkmark if visited once
+          if (currentVisits - 1 === 1) {
+              if (recycleIcon) {
+                  recycleIcon.style.display = 'none'; // Hide recycling icon
+              }
+              checkmarkIcon.style.display = 'block'
+
+          } else if (currentVisits - 1 === 0) {
+            if (checkmarkIcon) {
+              checkmarkIcon.style.display = 'none'; // Hide recycling icon
+            }  
           }
-        }
+          recycleIcon.style.display = 'block';
+        
+              // Hide checkmark icon
+//              if (checkmarkIcon) {
+ //               checkmarkIcon.style.display = 'none'; // Hide checkmark for other cases
+  //          }
+          }
 
         // Check if the map is no longer completed
         mapCompleted = false;
@@ -386,17 +437,17 @@ function handleButtonClick(i) {
     console.log(getPositionInPath(i, position.path));
     console.log(position.path)
 
-    console.log(`Button ${41}:
-      Element: %o
-      Max Visits: ${parseInt(document.getElementById(`button${41}`).dataset.maxVisits) || 1}
-      In Path: ${position.path.includes(41)}`);
+//    console.log(`Button ${41}:
+ //     Element: %o
+  //    Max Visits: ${parseInt(document.getElementById(`button${41}`).dataset.maxVisits) || 1}
+   //   In Path: ${position.path.includes(41)}`);
 
     // Log the button click vector
     logButtonClickVector();
 
     // debug
-    console.log(blocked);
-    console.log(position.path);
+  //  console.log(blocked);
+  //  console.log(position.path);
   }
   drawPath();
 }
