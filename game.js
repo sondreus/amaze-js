@@ -1,5 +1,108 @@
 const N = 49;
 
+// Make path
+function drawPath() {
+  const svg = document.getElementById('path-overlay');
+  svg.innerHTML = ''; // Clear existing path
+
+  if (position.path.length < 2) return; // Need at least 2 points to draw a line
+
+  const gameBoard = document.querySelector('.game-board');
+  const buttonSize = gameBoard.clientWidth / 7; // Assuming a 7x7 grid
+  const buttonMargin = 1; // Adjust based on your grid-gap
+  const totalSize = buttonSize + buttonMargin;
+
+  // Set SVG viewBox to match game board dimensions
+  svg.setAttribute('viewBox', `0 0 ${gameBoard.clientWidth} ${gameBoard.clientHeight}`);
+
+  let pathD = '';
+  
+  // Array to hold visited coordinates
+  let visitedCoordinates = [];
+  
+  // Array to hold coordinate pairs
+  let coordinatePairs = [];
+
+  position.path.forEach((buttonIndex, index) => {
+    const col = ((buttonIndex - 1) % 7);
+    const row = Math.floor((buttonIndex - 1) / 7);
+    const x = col * totalSize + buttonSize / 2;
+    const y = row * totalSize + buttonSize / 2;
+
+    if (index === 0) {
+      pathD += `M ${x} ${y}`; // Move to the first point
+    } else {
+      pathD += ` L ${x} ${y}`; // Normal line drawing
+    }
+
+    // Record the visited coordinates using cell number as ID
+    visitedCoordinates.push(buttonIndex);
+
+    // Create a pair from the current and previous button indices
+    if (index > 0) {
+      const previousButtonIndex = position.path[index - 1];
+      const pair = [Math.min(previousButtonIndex, buttonIndex), Math.max(previousButtonIndex, buttonIndex)];
+      coordinatePairs.push(pair);
+    }
+    
+    previousPoint = { x, y }; // Update previous point for next iteration
+  });
+
+  // Draw the main path with normal thickness
+  const mainPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  
+  mainPath.setAttribute('d', pathD);
+  mainPath.setAttribute('fill', 'none');
+  mainPath.setAttribute('stroke', 'gold');
+  mainPath.setAttribute('stroke-width', '3'); // Normal thickness for non-retraced lines
+  mainPath.setAttribute('stroke-linecap', 'round');
+  mainPath.setAttribute('stroke-linejoin', 'round');
+
+  svg.appendChild(mainPath);
+
+  // Find duplicated pairs
+  let duplicatePairs = {};
+  
+  coordinatePairs.forEach(pair => {
+    const key = pair.join('-'); // Create a unique key for each pair
+    duplicatePairs[key] = (duplicatePairs[key] || 0) + 1; // Count occurrences of each pair
+  });
+
+  // Draw curved lines for duplicated pairs
+  Object.keys(duplicatePairs).forEach(key => {
+    if (duplicatePairs[key] > 1) {
+      const [start, end] = key.split('-').map(Number); // Get start and end from key
+      
+      const startCol = (start - 1) % 7;
+      const startRow = Math.floor((start - 1) / 7);
+      const endCol = (end - 1) % 7;
+      const endRow = Math.floor((end - 1) / 7);
+
+      // Calculate positions for the curve
+      const startX = startCol * totalSize + buttonSize / 2;
+      const startY = startRow * totalSize + buttonSize / 2;
+      const endX = endCol * totalSize + buttonSize / 2;
+      const endY = endRow * totalSize + buttonSize / 2;
+
+      // Calculate control point for the curve (midpoint with an offset)
+      const controlX = (startX + endX) / 2 - (totalSize / 4);
+      const controlY = (startY + endY) / 2 - (totalSize / 4); // Adjust control point up for curvature
+
+      // Create a new path element for the curved line
+      const curveLinePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      curveLinePath.setAttribute('d', `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`);
+      curveLinePath.setAttribute('fill', 'none');
+      curveLinePath.setAttribute('stroke', 'gold'); // Keep color gold for duplicates
+      curveLinePath.setAttribute('stroke-width', '3'); 
+      curveLinePath.setAttribute('stroke-linecap', 'round');
+      curveLinePath.setAttribute('stroke-linejoin', 'round');
+
+      svg.appendChild(curveLinePath); // Append the curved line to the SVG
+    }
+  });
+}
+
+
 // Game state
 let position = {
   index: null,
@@ -112,6 +215,7 @@ async function createGameBoard(mapData) {
   document.querySelector('.restart-button').style.gridColumn = '1';
 
   currentMap = mapData;
+  drawPath();
 }
 
 async function loadGame() {
@@ -294,6 +398,7 @@ function handleButtonClick(i) {
     console.log(blocked);
     console.log(position.path);
   }
+  drawPath();
 }
 
 function decrementColor(value, position) {
@@ -327,6 +432,7 @@ function resetGameState() {
   }
 
   blocked = [];
+  drawPath();
 }
 
 

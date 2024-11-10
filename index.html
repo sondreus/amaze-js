@@ -32,16 +32,30 @@
   </div>
   This is a tutorial --> 
   <style>
+    #game-board-container {
+      position: relative;
+      width: 90%; /* Adjust this as needed */
+      max-width: 800px; /* Maximum width */
+      aspect-ratio: 1/1.2; /* Maintain aspect ratio */
+      margin: 30px auto; /* Center horizontally with auto left/right margins */
+    }
+
+    #path-overlay {
+      position: absolute;
+      top: -25px;
+      left: 0;
+      width: 100%;
+      height: 100%; /* Use 100% height to match container */
+      pointer-events: none;
+    }
+
     .game-board {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       grid-template-rows: repeat(7, 1fr);
-      grid-gap: 10px;
-      max-width: 800px;
-      width: 90%;
-      aspect-ratio: 1/1.2;
-      margin: 0 auto;
-      margin-top: 30px;
+      grid-gap: 10px; /* Space between buttons */
+      width: 100%; /* Full width of the container */
+      height: auto; /* Allow height to adjust based on content */
     }
 
     .game-button {
@@ -55,13 +69,12 @@
       background-color: #1c1c1c;
       width: 100%;
       height: 100%;
-      margin: 0;
-      padding: 0;
+      margin: 0; /* Ensure no margin */
+      padding: 0; /* Ensure no padding */
       overflow: hidden;
-      touch-action: manipulation;
       display: flex;
-      justify-content: center;
-      align-items: center;
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically if needed */
     }
 
     .glow-button {
@@ -298,7 +311,10 @@
       </div>
     </div>
   </div>
-  <div class="game-board" id="game-board"></div>
+  <div id="game-board-container">
+    <div class="game-board" id="game-board"></div>
+    <svg id="path-overlay"></svg>
+  </div>
   <script src="game.js"></script>
 </body>
 </html>
