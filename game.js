@@ -534,6 +534,7 @@ function resetGameState() {
 
   blocked = [];
   drawPath();
+  printPathAsCharacters()
 }
 
 const completionMessageElement = document.getElementById('completion-message');
