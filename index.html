@@ -33,6 +33,7 @@
   This is a tutorial --> 
   <style>
     #game-board-container {
+      display: block;
       position: relative;
       width: 90%; /* Adjust this as needed */
       max-width: 800px; /* Maximum width */
@@ -59,11 +60,14 @@
     }
 
     .game-button {
-      width: 100%;
-      height: 100%;
-      aspect-ratio: 1/1;
-      margin: 0;
-    }
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1/1;
+    margin: 0;
+    font-size: 24px; /* Adjust this value for larger text */
+    color: white; /* Set text color to white */
+    background-color: transparent; /* Optional: Ensure background is transparent */
+}
 
     body {
       background-color: #1c1c1c;
@@ -290,6 +294,8 @@
     }
     body {
       font-family: Georgia, 'Times New Roman', Times, serif;
+      flex-direction: column; /* Stack elements vertically */
+      align-items: center; /* Center horizontally */
     }
 
   </style>
@@ -315,6 +321,9 @@
     <div class="game-board" id="game-board"></div>
     <svg id="path-overlay"></svg>
   </div>
+  <div class="path-message" id="path-message" style="margin-top: 10px; font-size: 64px; color: white;  flex-direction: column; width: 80%"></div>
+ <p>  </p>
+ <div id="completion-message" style="margin-top: 10px; font-size: 32px; color: gray;  flex-direction: column; width: 80%"></div> 
   <script src="game.js"></script>
 </body>
 </html>

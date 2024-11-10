@@ -126,7 +126,7 @@ let gameBoard;
 const currentDate = new Date();
 const referenceDate = new Date(2024, 4, 27);
 const daysDiff = Math.floor((currentDate - referenceDate) / (1000 * 60 * 60 * 24));
-let currentMapIndex = 1 // daysDiff + 10;
+let currentMapIndex = 1; // daysDiff + 10;  
 let maps;
 let currentMap;
 
@@ -136,7 +136,41 @@ async function loadMapData() {
   return maps;
 }
 
-async function createGameBoard(mapData) {
+let loaded_mapCharacters = [' '];
+
+// Example sentence
+const exampleSentence = "All men by nature desire to know".split("");  // Split into array of characters
+const examplePath = [17, 10, 3, 2, 1, 8, 15, 22, 23, 24, 31, 32, 39, 38, 45, 46, 47, 40, 41, 34, 27, 26, 19, 12, 13, 20, 21, 14, 7, 6, 5, 4, 11, 18, 25];
+
+// Initialize the map array (letter, number pairs)
+let mapText = [];
+
+// Populate mapText based on the examplePath and exampleSentence
+for (let i = 0; i < examplePath.length; i++) {
+  mapText.push({ letter: exampleSentence[i], number: examplePath[i] });
+}
+
+// Add missing positions (1 to 49) with empty string for letters
+for (let i = 1; i <= 49; i++) {
+  if (!examplePath.includes(i)) {
+    mapText.push({ letter: "", number: i });
+  }
+}
+
+// Sort the mapText array by number
+mapText.sort((a, b) => a.number - b.number);
+
+// Extract and return the letters as a sorted result
+const result = mapText.map(item => item.letter);  // Just extract letters, do not join into string
+
+// Optional: To log the result array as in the example format:
+console.log(result);
+
+loaded_mapCharacters = result;  // Already in array format
+
+console.log(loaded_mapCharacters); // Just to verify the final array
+
+async function createGameBoard(mapData, buttonCharacters) {
   // Clear the existing game board
   gameBoard.innerHTML = '';
   resetGameState();
@@ -147,6 +181,9 @@ async function createGameBoard(mapData) {
     button.style.backgroundColor = valueToColor(buttonColors[`button${i}`]);
     button.id = `button${i}`;
     button.addEventListener('click', () => handleButtonClick(i));
+
+    // Set the character for the button
+    button.innerHTML = buttonCharacters[i - 1] || ''; // Default to empty if out of bounds
 
     if (mapData[i - 1] === "0") {
       buttonColors[`button${i}`] = 0;
@@ -181,7 +218,7 @@ async function createGameBoard(mapData) {
   restartButton.classList.add('restart-button');
   restartButton.addEventListener('click', () => {
     resetGameState();
-    createGameBoard(maps[currentMapIndex]);
+    createGameBoard(maps[currentMapIndex], loaded_mapCharacters);
   });
   gameBoard.appendChild(restartButton);
 
@@ -204,7 +241,7 @@ async function createGameBoard(mapData) {
   switchMapButton.classList.toggle('glow-big-gold-button', mapCompleted);
   switchMapButton.addEventListener('click', () => {
     currentMapIndex = (currentMapIndex + 1) % maps.length;
-    createGameBoard(maps[currentMapIndex]);
+    createGameBoard(maps[currentMapIndex], loaded_mapCharacters);
   });
   gameBoard.appendChild(switchMapButton);
 
@@ -223,7 +260,15 @@ await loadMapData();
 
 // Initialize the game board with the first map
 gameBoard = document.getElementById('game-board');
-await createGameBoard(maps[currentMapIndex]);
+await createGameBoard(maps[currentMapIndex], loaded_mapCharacters);
+
+
+
+
+// No letters beyond first game:
+loaded_mapCharacters = new Array(49).fill(' ');
+
+
 }
 
 loadGame();
@@ -305,7 +350,7 @@ function updatePosition(index) {
   return index;
 }
 
-function handleButtonClick(i) {
+function handleButtonClick(i, loaded_mapCharacters) {
   if (!blocked.includes(i)) {
     const buttonElement = document.getElementById(`button${i}`);
     const maxVisits = parseInt(buttonElement.dataset.maxVisits) || 1;
@@ -450,6 +495,9 @@ function handleButtonClick(i) {
   //  console.log(position.path);
   }
   drawPath();
+
+  // Display current sentence generated
+  printPathAsCharacters()
 }
 
 function decrementColor(value, position) {
@@ -486,6 +534,31 @@ function resetGameState() {
   drawPath();
 }
 
+const completionMessageElement = document.getElementById('completion-message');
+completionMessageElement.innerText = "Find the hidden message...";
+
+// This can be used to get characters from the button indices
+function printPathAsCharacters() {
+  const pathMessage = position.path.map(index => {
+      return loaded_mapCharacters[index - 1] || '?'; // Use '?' if out of bounds
+  }).join('');
+
+  const pathMessageElement = document.getElementById('path-message');
+  const completionMessageElement = document.getElementById('completion-message');
+
+  if (mapCompleted) { // Check if the game is solved
+      pathMessageElement.innerText = `${pathMessage}`;
+      pathMessageElement.style.color = 'gold'; // Change text color to gold
+      completionMessageElement.innerText = "Aristotle, Metaphysics";
+
+  } else {
+      pathMessageElement.innerText = `${pathMessage}`;
+      pathMessageElement.style.color = 'white'; // Keep text color white
+      completionMessageElement.innerText = "Find the hidden message...";
+  }
+
+  console.log('Current Path:', pathMessage);
+}
 
 function convertToEmojis(mapData, maxPerLine = 7) {
   const emojiMap = {
