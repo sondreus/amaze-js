@@ -241,6 +241,12 @@ async function createGameBoard(mapData, buttonCharacters) {
   switchMapButton.classList.toggle('glow-big-gold-button', mapCompleted);
   switchMapButton.addEventListener('click', () => {
     currentMapIndex = (currentMapIndex + 1) % maps.length;
+    
+
+// No letters beyond first game:
+loaded_mapCharacters = new Array(49).fill(' ');
+
+
     createGameBoard(maps[currentMapIndex], loaded_mapCharacters);
   });
   gameBoard.appendChild(switchMapButton);
@@ -263,10 +269,6 @@ gameBoard = document.getElementById('game-board');
 await createGameBoard(maps[currentMapIndex], loaded_mapCharacters);
 
 
-
-
-// No letters beyond first game:
-loaded_mapCharacters = new Array(49).fill(' ');
 
 
 }
