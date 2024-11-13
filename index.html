@@ -301,7 +301,19 @@
   </style>
 </head>
 <body>
-  <div class="tutorial-screen" id="tutorialScreen">
+  
+  <div id="game-board-container">
+    <div class="game-board" id="game-board"></div>
+    <svg id="path-overlay"></svg>
+  </div>
+  <div class="path-message" id="path-message" style="margin-top: 10px; font-size: 64px; color: white;  flex-direction: column; width: 80%"></div>
+ <p>  </p>
+ <div id="completion-message" style="margin-top: 10px; font-size: 32px; color: gray;  flex-direction: column; width: 80%"></div> 
+  <script src="game.js"></script>
+</body>
+</html>
+
+<div class="tutorial-screen" id="tutorialScreen">
     <div class="tutorial-content">
       <br>
       <br>
@@ -316,14 +328,4 @@
         <button class="close-button" id="closeTutorial">></button>
       </div>
     </div>
-  </div>
-  <div id="game-board-container">
-    <div class="game-board" id="game-board"></div>
-    <svg id="path-overlay"></svg>
-  </div>
-  <div class="path-message" id="path-message" style="margin-top: 10px; font-size: 64px; color: white;  flex-direction: column; width: 80%"></div>
- <p>  </p>
- <div id="completion-message" style="margin-top: 10px; font-size: 32px; color: gray;  flex-direction: column; width: 80%"></div> 
-  <script src="game.js"></script>
-</body>
-</html>
+</div>
